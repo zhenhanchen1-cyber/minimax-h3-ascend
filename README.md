@@ -1,28 +1,22 @@
-# MiniMax-H3 on Ascend 910B/910C · 昇腾本地部署全栈方案
+# MiniMax-H3 · 昇腾 910B/910C 本地部署（无审查版）全栈方案
 
-> 在华为昇腾 NPU（910B / 910C）上用 ComfyUI 本地运行 **MiniMax-H3** 全模态视频生成模型：文生视频 / 图生视频 / 参考图锁角色，**原生音画同步**，单机双卡 128GB 显存，最高实测 1.0MP / 12 秒 / 8 步。
->
-> 本仓库由一次真实部署（CANNLab 2×910B）完整沉淀而成：**一键复原脚本 + 实测性能数据 + 全流程踩坑修复 + 可直接导入的工作流**。
+> 在华为昇腾 NPU（910B / 910C）上用 ComfyUI 本地运行 **MiniMax-H3** 全模态视频生成：
+> 文生视频 / 图生视频 / 参考图锁角色，**原生音画同步**，文本编码器可选**无审查（Uncensored）版本**，
+> 完全本地运行、无云端内容限制，免费无限量。
 
-## 📦 多平台镜像
+## 🔥 三大看点
 
-| 平台 | 地址 |
-|---|---|
-| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend |
-| GitCode | https://gitcode.com/czhljj/minimax-h3-ascend |
+1. **无审查运行** —— 文本编码器提供社区 **uncensored（heretic）** 版本，视频生成全程本地，没有云端审核掐提示词的问题
+2. **昇腾真机部署** —— 官方和社区资料几乎全是 NVIDIA 路线（CUDA/NVFP4/GGUF），本仓库提供**已在 910B 双卡实测跑通**的 INT8 完整方案，单机 128GB HBM
+3. **开箱即用 + 一键复原** —— 换一台昇腾机器，clone → 三条命令 → 浏览器开干；附实测性能数据与 17 条踩坑修复
 
-[![Platform](https://img.shields.io/badge/platform-Ascend%20910B%2F910C-green)]() [![CANN](https://img.shields.io/badge/CANN-9.0.0-blue)]() [![ComfyUI](https://img.shields.io/badge/ComfyUI-v0.32.0-purple)]()
+## 🎬 实测出片（60 秒连续剧情，本仓库流水线生成）
 
----
+| ![](assets/demo_1.jpg) | ![](assets/demo_2.jpg) | ![](assets/demo_3.jpg) |
+|---|---|---|
+| 镜头 1-2 · 建置 | 镜头 4-6 · 情绪推进 | 镜头 8-9 · 收尾空镜 |
 
-## 为什么值得看
-
-- **昇腾跑通 MiniMax-H3**：官方和社区资源大多面向 NVIDIA（CUDA/NVFP4/GGUF），本仓库给出一条**已在 910B 真机验证**的 INT8 路线（`int8_convrot` + `npu_quant_matmul`）
-- **双卡序列并行**：2×64GB HBM 协同推理，768P 档单条 12 秒视频约 5~11 分钟
-- **4 步极速档**：切到 4-step Turbo LoRA 后，5 秒视频采样仅 **17.8 秒**（热机连续出片约 20~25 秒/条）
-- **60 秒长片流水线**：内置「尾帧接首帧」自动分段拼接脚本，突破单次 15 秒上限
-- **原生音频**：视频与 32kHz 立体声同步生成，不需要后期配音（注意音频 VAE 必须 fp32）
-- **踩坑全修复**：torchaudio 版本、aarch64 libgomp TLS、sqlite 兼容、HF 镜像 40MB/s 分片下载……都在 `docs/部署踩坑记录.md`
+> 1184×896 / 24fps / 原生 32kHz 立体声 / 由九宫格分镜图 + 2500 字分镜提示词生成，5 段 × 12 秒「尾帧接首帧」拼接为 61 秒成片。
 
 ## 实测性能（2×910B，64GB×2 HBM）
 
@@ -35,101 +29,138 @@
 
 > 提速杠杆：**分辨率 >> 帧数 > 步数**。0.4MP→1.0MP 每步耗时 4.4s→71s（16 倍）；步数 8→4 快 2 倍。
 
-## 快速开始
-
-### 0. 前提
-
-- 昇腾 NPU 环境（910B/910C，建议 ≥64GB HBM/卡），已装 **CANN ≥ 9.0.0** 与驱动
-- Python 3.10~3.12，`torch` + `torch_npu`（版本需与 CANN 配套；本项目在 torch 2.7.1 + torch_npu 2.7.1.post4 验证）
-- 磁盘 ≥ 150GB（模型全量约 90GB）
-
-### 1. 一键部署
+## 快速开始（换机复原只需三步）
 
 ```bash
-git clone https://gitcode.com/czhljj/minimax-h3-ascend.git
+git clone https://gitcode.com/czhljj/minimax-h3-ascend.git   # GitHub 镜像见文末
 cd minimax-h3-ascend
-bash setup.sh              # 会自动：拉取ComfyUI→打昇腾补丁→装依赖→装工作流
-bash scripts/download_models.sh   # 下载全部模型（约 90GB，走 hf-mirror，支持断点续传）
-bash scripts/start_comfyui.sh     # 启动服务（自动识别 NPU 数量）
+bash setup.sh                      # ① 装好一切（拉ComfyUI+打昇腾补丁+依赖+工作流）
+bash scripts/download_models.sh    # ② 下模型（约90GB，hf-mirror 分片并行，支持断点续传）
+bash scripts/start_comfyui.sh      # ③ 启动，浏览器打开 http://127.0.0.1:8188
 ```
 
-浏览器打开 `http://127.0.0.1:8188`，从 **Workflows → minimax-h3** 选择工作流即可出片。
+**下载速度参考**（实测）：聚合约 **40MB/s**（16 连接/文件），全量 90GB 约 **35~40 分钟**；
+若环境带宽较差（10MB/s），约 2.5 小时，支持**断点续传**，断了重跑即可。
 
-### 2. 三档工作流怎么选
+**前提**：昇腾环境已装 CANN ≥ 9.0.0 与 torch/torch_npu（如 CANNLab 镜像自带）。
+脚本会**自动识别 910B/910C 的卡数**（1/2/4/8）并同步到工作流配置。
 
-| 工作流 | 用途 |
-|---|---|
-| `fl2va_4step_极速档.json` | 0.4MP/5s/4步，20~25 秒一条，试提示词、批量 |
-| `fl2va_4step_0.6MP中间档.json` | 0.6MP/8s/4步，约 1 分钟一条，**日常推荐** |
-| `fl2va_8steps_lora_int8_2npu.json` | 可自调到 1.0MP/12s，高画质/长片分段 |
-| `i2v_九宫格_昇腾适配.json` | 九宫格分镜图 → 一段连续剧情（用户下拉框已配好） |
-| `ref2va_8steps_lora.json` | Ref2VA 参考图锁角色一致性（需切 ref2va 主模型） |
+## 📦 模型清单（含审查状态 / 硬件要求 / 测试状态）
 
-### 3. 60 秒长片
+> 全部公开可用；✅=本仓库实测通过，❓=未测试（理论可用，欢迎反馈），❌=昇腾不可用。
+> 链接均为 HuggingFace 官方仓库地址（国内可在域名换成 `hf-mirror.com`）。
 
-```bash
-python3 scripts/driver_grid.py    # 5 段 × 12 秒，尾帧接首帧，自动拼接
-python3 scripts/concat.py         # ffmpeg 流拷贝，零重编码拼接
+### 主模型 DiT（扩散"大脑"）
+
+| 文件 | 大小 | 审查 | 昇腾要求 | 状态 | 说明 |
+|---|---|---|---|---|---|
+| `minimax_h3_fl2va_int8_convrot` | 34.0G | 中立 | ≥2×64G 推荐 | ✅ | **主力模型**：文生/图生/首尾帧 |
+| `minimax_h3_ref2va_pruned_int8_convrot` | 21.0G | 中立 | 单卡 64G 可 | ⚠️ | Ref2VA 参考图锁角色，已就位未充分测 |
+| `minimax_h3_fl2va_pruned_int8_convrot` | 20.9G | 中立 | 单卡 64G 可 | ❓ | 轻量版，省显存，**未测试** |
+| `minimax_h3_fl2va_pruned_w6a8` | 16.0G | 中立 | 单卡 32G 理论可 | ❓ | 更激进量化，**未测试** |
+| `minimax_h3_fl2va_bf16` | 66.3G | 中立 | ≥4×64G | ❓ | 全精度画质版，**未测试** |
+| `minimax_h3_fl2va_pruned_bf16` | 40.2G | 中立 | ≥2×64G | ❓ | 半精度轻量版，**未测试** |
+| `minimax_h3_fl2va_pruned_fp8_scaled` | 21.0G | 中立 | ❌ | ❌ | FP8 为 N 卡优化，昇腾不建议 |
+
+### 文本编码器（决定"审查"）
+
+| 文件 | 大小 | 审查 | 昇腾要求 | 状态 | 说明 |
+|---|---|---|---|---|---|
+| `qwen3vl_32b_h3_ultra_uncensored_heretic_int8_convrot` | 26.4G | **无审查** 🔥 | 单卡 64G | ✅ | **本仓库默认**，社区 uncensored 版 |
+| `qwen3vl_32b_minimax_h3_int8_convrot` | 27.1G | 官方有审查 | 单卡 64G | ✅ | 官方版，追求稳妥可换 |
+| `qwen3vl_32b_minimax_h3_nvfp4_awq` | 15.7G | 官方有审查 | ❌ | ❌ | NVFP4：N 卡 Blackwell 专属 |
+| `qwen3vl_32b_minimax_h3_bf16` | 51.5G | 官方有审查 | ≥2×64G | ❓ | 全精度版，**未测试** |
+
+### VAE / 加速 LoRA
+
+| 文件 | 大小 | 昇腾要求 | 状态 | 说明 |
+|---|---|---|---|---|
+| `minimax_h3_video_vae_fp16` | 5.2G | 单卡 | ✅ | 视频解码（默认） |
+| `minimax_h3_video_vae_int8_convrot` | 2.8G | 单卡 | ✅ | 视频解码加速版 |
+| `minimax_h3_audio_vae_fp32` | 0.6G | 单卡 | ✅ | **音频必须 fp32**，缺了会没声音 |
+| `minimax_h3_fl2v_turbo_4step_v1.0` | 2.0G | 单卡 | ✅ | **4 步极速档**（提速一倍） |
+| `minimax_h3_fl2v_turbo_8step_v1.0` | 2.0G | 单卡 | ✅ | 8 步画质档 |
+
+> 原文/原始仓库：[Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3) ·
+> [uncensored 文本编码器](https://huggingface.co/ethanfel/Qwen3-VL-32B-Ultra-Heretic-H3-ComfyUI-INT8-ConvRot)
+
+## 🖥️ 不同规格昇腾机器怎么配
+
+| 机器 | 推荐配置 | 体验 |
+|---|---|---|
+| **2×64GB（本文实测）** | fl2va_int8 + npu_count=2 | 768P/12s 约 5~11 分钟；480P 热机 20~25 秒/条 |
+| **1×64GB** | fl2va_int8 或 pruned_int8 + npu_count=1 | 480P 起步，速度约慢 1.5~2 倍；长片建议分段 |
+| **1×32GB** | pruned_int8 / w6a8 + 480P + 短时长 | 边缘可行（**未充分验证**），建议先跑 5 秒档 |
+| **4×64GB（910C 等）** | fl2va_int8 + npu_count=4 | 接近官方满血：768P/15s 最快约 2 分钟级 |
+| **8 卡以上** | 补丁当前支持到 4 卡并行 | 可多实例并行增加吞吐 |
+
+## 🎯 三档工作流（新手按场景直接选）
+
+| 工作流 | 配置 | 用途 |
+|---|---|---|
+| `fl2va_4step_极速档.json` | 0.4MP/5s/4步 | 试提示词、批量：热机 **20~25 秒/条** |
+| `fl2va_4step_0.6MP中间档.json` | 0.6MP/8s/4步 | **日常推荐**，约 1 分钟/条 |
+| `fl2va_8steps_lora_int8_2npu.json` | 可自调到 1.0MP/12s | 高画质、长片分段 |
+| `i2v_九宫格_昇腾适配.json` | 九宫格分镜图 → 连续剧情 | 下拉框已配好，即开即用 |
+| `ref2va_8steps_lora.json` | 参考图锁角色 | 需切 ref2va 主模型 |
+
+## 📁 目录结构
+
 ```
-
-## 目录结构
-
-```
-├── setup.sh                    # 一键部署
+├── setup.sh                    # 一键部署（自动适配卡数/CANN 路径）
 ├── scripts/
-│   ├── download_models.sh      # 模型清单下载（hf-mirror 分片并行，40MB/s）
-│   ├── dl_fast.py              # 通用分片并行下载器（33 路并发）
-│   ├── start_comfyui.sh        # 启动脚本（自动识别 NPU 数/CANN 路径）
-│   ├── convert_wf.py           # ComfyUI 工作流 UI→API 格式转换
-│   ├── driver_grid.py          # 分镜提示词自动拆分 + 长片流水线
-│   ├── concat.py               # 视频拼接（imageio-ffmpeg）
-│   └── 切九宫格.py              # 九宫格分镜图切图工具
-├── workflows/                  # 全部工作流 JSON
-├── assets/
-│   ├── comfy-ui-changes.patch  # 昇腾适配补丁（来自 Ascend-SACT 开源项目）
-│   └── ComfyUI-MiniMax-H3-Turbo-verified.tgz  # 验证版 Turbo 节点
+│   ├── dl_models.py            # 分片并行下载（40MB/s，断点续传）
+│   ├── start_comfyui.sh        # 启动（自动识别卡数，内置 aarch64 修复）
+│   ├── set_npu_count.py        # 按实际卡数同步所有工作流
+│   ├── convert_wf.py           # ComfyUI 工作流 UI→API 转换
+│   ├── driver_grid.py          # 长片流水线（尾帧接首帧 + 自动拼接）
+│   ├── concat.py / 切九宫格.py  # 拼接 / 分镜切图
+│   └── ...
+├── workflows/                  # 10 个工作流 JSON
+├── assets/                     # 昇腾适配补丁 + 验证版节点 + 演示图
 ├── docs/
 │   ├── 出片操作手册.md
 │   ├── 九宫格图生视频教程.md
-│   ├── 部署踩坑记录.md
+│   ├── 部署踩坑记录.md          # 17 个坑与修复
 │   └── ENVIRONMENT-910B.txt
-└── windows/打开ComfyUI界面.bat  # Windows 客户端一键隧道+开浏览器
+└── windows/                    # Windows 隧道脚本（自愈重连）
 ```
 
-## 模型清单（全部来自公开仓库）
+## ⚠️ 关键注意事项
 
-| 文件 | 大小 | 来源 | 位置 |
-|---|---|---|---|
-| `minimax_h3_fl2va_int8_convrot.safetensors` | 34.0 GB | Comfy-Org/MiniMax-H3 | `models/diffusion_models/` |
-| `minimax_h3_ref2va_pruned_int8_convrot.safetensors` | 21.0 GB | Comfy-Org/MiniMax-H3 | `models/diffusion_models/` |
-| `qwen3vl_32b_..._int8_convrot.safetensors`（文本编码器二选一） | 27.1 GB | Comfy-Org/MiniMax-H3 | `models/text_encoders/` |
-| `qwen3vl_32b_h3_ultra_uncensored_heretic_int8_convrot`（可选替代） | 26.4 GB | ethanfel（公开仓库） | `models/text_encoders/` |
-| `minimax_h3_video_vae_fp16.safetensors` | 5.2 GB | Comfy-Org/MiniMax-H3 | `models/vae/` |
-| `minimax_h3_audio_vae_fp32.safetensors` ⚠️ 必须 fp32 | 0.6 GB | Comfy-Org/MiniMax-H3 | `models/vae/` |
-| `minimax_h3_video_vae_int8_convrot.safetensors`（可选，解码更快） | 2.8 GB | Comfy-Org/MiniMax-H3 | `models/vae/` |
-| `minimax_h3_fl2v_turbo_4step_v1.0_768p_...safetensors` | 2.0 GB | Comfy-Org/MiniMax-H3 | `models/loras/` |
-| `minimax_h3_fl2v_turbo_8step_v1.0_...safetensors` | 2.0 GB | Comfy-Org/MiniMax-H3 | `models/loras/` |
+1. **音频 VAE 必须 fp32** —— 用 fp16 会没声音或音画不同步
+2. **torchaudio 必须与 torch 同版本**（setup.sh 已自动处理）
+3. **aarch64 需 `LD_PRELOAD=libgomp.so.1`**（启动脚本已内置）
+4. **ComfyUI 必须锁 commit** `bd34f338`（补丁基于该版本）
+5. 昇腾只选 `int8_convrot` 系列权重；**NVFP4 / GGUF / FP8 是 N 卡专属**
+6. 单次最长 **15 秒**（362 帧）；更长用 `driver_grid.py` 分段接力
+7. `npu_count` 必须等于实际卡数（`set_npu_count.py` 自动处理）
 
-## 关键注意事项（血泪总结）
+## ❓ 常见问题
 
-1. **音频 VAE 必须用 fp32**——用 fp16 会没声音或音画不同步
-2. **torchaudio 必须与 torch 同版本**（如 torch 2.7.1 → torchaudio 2.7.1），否则 `undefined symbol`
-3. **aarch64 下启动前加 `LD_PRELOAD=/lib/aarch64-linux-gnu/libgomp.so.1`**，否则 torchaudio 加载报 TLS 错误
-4. **ComfyUI 版本必须锁 commit**（本仓库验证版本 `bd34f338`），补丁基于该版本
-5. 昇腾上**不要**使用 NVFP4/GGUF 权重（NVIDIA 专属），只选 `int8_convrot`
-6. 单次生成 **最长 15 秒**（362 帧）；更长请用 `driver_grid.py` 分段接力
-7. `MultiNPUParallelConfig` 的 `npu_count` 必须等于实际可用卡数（1/2/4）
+**Q：下次换一台昇腾机器，能一键复原吗？**
+能。`git clone`（<5MB）→ `setup.sh`（约 3 分钟）→ `download_models.sh`（90GB，40MB/s 约 40 分钟）→ `start_comfyui.sh` → 浏览器开干。前提是新机器有 CANN 环境（CANNLab 镜像自带）。
 
-## 已知限制
+**Q：下载速度怎么样？**
+实测聚合 40MB/s（16 路分片）。环境差时约 10MB/s，支持断点续传，中断重跑不丢进度。
 
-- 昇腾缺乏 CUDA 生态的稀疏注意力优化（如 SLA），同模型同参数下速度约为高端 N 卡的 1/3~1/2
-- ComfyUI 的 prompt history sqlite 落库在旧版 sqlite 系统上会报错（不影响出片）
-- 本方案基于社区适配补丁（Ascend-SACT），非华为官方支持路径
+**Q：没有昇腾、只有 N 卡能用吗？**
+工作流 JSON 是通用的；模型请选对应平台的量化版本（N 卡用 nvfp4 / fp8 系列，即上文标 ❌ 的那些行，**未测试**）。
+
+**Q：生成有内容限制吗？**
+视频生成完全在本地运行，本仓库默认文本编码器为社区 uncensored 版本，不存在云端审核拦截；请自行遵守所处地区的法律法规。
+
+## 📦 多平台镜像
+
+| 平台 | 地址 |
+|---|---|
+| GitCode | https://gitcode.com/czhljj/minimax-h3-ascend |
+| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend |
 
 ## 致谢与许可
 
-本项目脚本代码采用 **MIT 许可**。依赖组件的许可与归属见 [NOTICE.md](NOTICE.md)：
-- [Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3)（模型权重，遵循其仓库声明）
-- [Ascend-SACT/MiniMax-H3-Comfy-NPU](https://atomgit.com/Ascend-SACT/MiniMax-H3-Comfy-NPU)（昇腾适配补丁，Apache-2.0）
-- [Larryvrh/ComfyUI-MiniMax-H3-Turbo](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo)（Turbo 采样节点，Apache-2.0）
-- [ComfyUI](https://github.com/Comfy-Org/ComfyUI)（GPL-3.0）
+脚本与文档采用 **MIT 许可**。第三方组件归属见 [NOTICE.md](NOTICE.md)：
+[Ascend-SACT 昇腾适配补丁](https://atomgit.com/Ascend-SACT/MiniMax-H3-Comfy-NPU)（Apache-2.0）、
+[ComfyUI-MiniMax-H3-Turbo](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo)（Apache-2.0）、
+[ComfyUI](https://github.com/Comfy-Org/ComfyUI)（GPL-3.0）、
+[Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3) 模型权重。
