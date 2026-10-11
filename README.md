@@ -1,4 +1,4 @@
-# MiniMax-H3 · 昇腾 910B/910C 本地部署（无审查版）全栈方案
+# MiniMax-H3 (Uncensored 去审核版) · 昇腾 910B/910C 本地部署全栈方案
 
 > 在华为昇腾 NPU（910B / 910C）上用 ComfyUI 本地运行 **MiniMax-H3** 全模态视频生成：
 > 文生视频 / 图生视频 / 参考图锁角色，**原生音画同步**，文本编码器可选**无审查（Uncensored）版本**，
@@ -32,7 +32,7 @@
 ## 快速开始（换机复原只需三步）
 
 ```bash
-git clone https://gitcode.com/czhljj/minimax-h3-ascend.git   # GitHub 镜像见文末
+git clone https://gitcode.com/nxxwjbl/minimax-h3-ascend-uncensored.git   # GitHub 镜像见文末
 cd minimax-h3-ascend
 bash setup.sh                      # ① 装好一切（拉ComfyUI+打昇腾补丁+依赖+工作流）
 bash scripts/download_models.sh    # ② 下模型（约90GB，hf-mirror 分片并行，支持断点续传）
@@ -154,8 +154,8 @@ bash scripts/start_comfyui.sh      # ③ 启动，浏览器打开 http://127.0.0
 
 | 平台 | 地址 |
 |---|---|
-| GitCode | https://gitcode.com/czhljj/minimax-h3-ascend |
-| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend |
+| GitCode | https://gitcode.com/nxxwjbl/minimax-h3-ascend-uncensored |
+| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend-uncensored |
 
 ## 致谢与许可
 
