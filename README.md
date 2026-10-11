@@ -39,7 +39,7 @@
 ### 1. 一键部署
 
 ```bash
-git clone <本仓库地址> minimax-h3-ascend
+git clone https://gitcode.com/czhljj/minimax-h3-ascend.git
 cd minimax-h3-ascend
 bash setup.sh              # 会自动：拉取ComfyUI→打昇腾补丁→装依赖→装工作流
 bash scripts/download_models.sh   # 下载全部模型（约 90GB，走 hf-mirror，支持断点续传）
