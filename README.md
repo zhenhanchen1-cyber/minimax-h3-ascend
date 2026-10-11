@@ -4,6 +4,13 @@
 >
 > 本仓库由一次真实部署（CANNLab 2×910B）完整沉淀而成：**一键复原脚本 + 实测性能数据 + 全流程踩坑修复 + 可直接导入的工作流**。
 
+## 📦 多平台镜像
+
+| 平台 | 地址 |
+|---|---|
+| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend |
+| GitCode | https://gitcode.com/czhljj/minimax-h3-ascend |
+
 [![Platform](https://img.shields.io/badge/platform-Ascend%20910B%2F910C-green)]() [![CANN](https://img.shields.io/badge/CANN-9.0.0-blue)]() [![ComfyUI](https://img.shields.io/badge/ComfyUI-v0.32.0-purple)]()
 
 ---
