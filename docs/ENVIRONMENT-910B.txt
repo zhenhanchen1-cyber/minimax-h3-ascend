@@ -1,0 +1,12 @@
+CANNLab 环境快照（2026-10-11）
+- 硬件: 2x Ascend 910B (64GB HBM each, 合计 128GB), 229GB RAM, 40 core, 196GB disk
+- OS: Ubuntu 20.04.5 (aarch64), kernel 5.10
+- 驱动: 25.5.5 (V100R001C23SPC009B220)
+- CANN: 9.0.0, 安装于 /home/developer/Ascend/ascend-toolkit
+- Python: 3.11.4 (系统自带 /opt/buildtools/Python-3.11.4)
+- torch: 2.7.1+cpu / torch_npu: 2.7.1.post4 (预装)
+- ComfyUI: commit bd34f338ac505ea79e43968753968a464060e609 (v0.32.0)
+- 昇腾适配补丁: https://atomgit.com/Ascend-SACT/MiniMax-H3-Comfy-NPU (comfy-ui-changes.patch)
+- MiniMax-H3-Turbo 节点: Larryvrh/ComfyUI-MiniMax-H3-Turbo (使用补丁仓库归档版)
+- comfy-kitchen 0.2.30 / comfy-aimdo 0.4.13 / imageio-ffmpeg 7.0.2
+- 额外系统依赖修复: torchaudio 必须降级到 2.7.1 (匹配 torch); LD_PRELOAD=/lib/aarch64-linux-gnu/libgomp.so.1

@@ -1,0 +1,66 @@
+{
+  "format_version": 1,
+  "comfyui": {
+    "repository": "https://github.com/Comfy-Org/ComfyUI.git",
+    "commit": "bd34f338ac505ea79e43968753968a464060e609",
+    "version": "0.32.0"
+  },
+  "validated_environment": {
+    "architecture": "aarch64",
+    "python": "3.12.13",
+    "cann": "9.0.1",
+    "torch": "2.10.0+cpu",
+    "torch_npu": "2.10.0.post2",
+    "comfy_kitchen": "0.2.30",
+    "comfy_aimdo": "0.4.13",
+    "comfyui_frontend_package": "1.48.7",
+    "gcc": "11.4.0",
+    "cmake": "3.22.1"
+  },
+  "source_dependencies": [
+    {
+      "name": "ComfyUI-MiniMax-H3-Turbo",
+      "repository": "https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo.git",
+      "upstream_commit": "546b5028f4934f5129eb6c7142c2f3e461dfddbf",
+      "upstream_version": "1.2.3",
+      "runtime_location": "${COMFY_HOME}/custom_nodes/ComfyUI-MiniMax-H3-Turbo",
+      "packaged_files": [
+        "LICENSE",
+        "README.md",
+        "__init__.py",
+        "h3_silu_temb_grid.safetensors",
+        "pyproject.toml"
+      ],
+      "local_modifications": true,
+      "install_method": "copy packaged runtime directory",
+      "notes": "The packaged __init__.py contains the validated Turbo LoRA, deepclone and INT8 changes; per-step diagnostic tensor reductions are intentionally excluded from production inference."
+    },
+    {
+      "name": "ComfyUI-LTXVideo",
+      "repository": "https://github.com/Lightricks/ComfyUI-LTXVideo.git",
+      "upstream_commit": "ac4d99839020b983e956a8ab67ec38aec1b6e65a",
+      "runtime_location": "${COMFY_HOME}/custom_nodes/ComfyUI-LTXVideo",
+      "local_modifications": true,
+      "install_method": "copy packaged runtime directory and install requirements.txt",
+      "notes": "Includes the LTX 2.5 official node implementation and the Ascend-compatible torch.nn.functional.pad change in pyramid_blending.py."
+    },
+    {
+      "name": "ComfyUI-KJNodes",
+      "repository": "https://github.com/kijai/ComfyUI-KJNodes.git",
+      "upstream_commit": "6ab7e8130e449ed2c0037589bcf84146ceb7fc9c",
+      "runtime_location": "${COMFY_HOME}/custom_nodes/ComfyUI-KJNodes",
+      "local_modifications": false,
+      "install_method": "copy packaged runtime directory and install requirements.txt",
+      "notes": "Packaged at the version installed while importing the official LTX 2.5 workflows."
+    }
+  ],
+  "excluded_runtime_artifacts": [
+    "model weights",
+    "user media",
+    "generated outputs",
+    "logs and PID files",
+    "ComfyUI database",
+    "Python bytecode caches",
+    "kernel_meta"
+  ]
+}

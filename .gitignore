@@ -1,0 +1,7 @@
+*.tgz.tmp
+*.p[0-9]*
+*.incomplete
+__pycache__/
+*.pyc
+.venv/
+export.tgz
