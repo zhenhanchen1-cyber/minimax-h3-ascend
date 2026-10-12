@@ -46,6 +46,16 @@ unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY all_proxy || true
 # --- 同步工作流里的 npu_count（避免校验失败）---
 python3 "$(dirname "$0")/set_npu_count.py" "$NPU_DEVICES" 2>/dev/null || true
 
+# --- 显存模式 ---
+ARGS="--listen 0.0.0.0 --port $PORT --disable-auto-launch --cache-classic"
+if [ "${LOWVRAM:-0}" = "1" ]; then
+    echo "低显存模式 (--lowvram)：模型逐层卸载到内存，慢但 32GB 卡也能跑"
+    ARGS="$ARGS --lowvram"
+fi
+if [ "${NORMALVRAM:-0}" = "1" ]; then
+    ARGS="$ARGS --normalvram"
+fi
+
 echo "$$" > "$PID_FILE"
 cd "$COMFY_HOME"
-exec python3 main.py --listen 0.0.0.0 --port "$PORT" --disable-auto-launch --cache-classic >> "$LOG_FILE" 2>&1
+exec python3 main.py $ARGS >> "$LOG_FILE" 2>&1

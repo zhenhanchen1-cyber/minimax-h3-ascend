@@ -25,6 +25,18 @@ FILES = [
     ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors", "loras"),
     ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors", "loras"),
 ]
+SKIP_FULL = os.environ.get("SKIP_FULL_FL2VA", "0") != "0"
+INC_PRUNED = os.environ.get("INCLUDE_PRUNED", "0") != "0"
+
+if SKIP_FULL:
+    # 低配档（32GB 单卡）：跳过 34GB 完整版
+    FILES = [f for f in FILES if "fl2va_int8_convrot" not in f[1]]
+    print("[低配档] 跳过完整版 fl2va_int8 (34GB)")
+if INC_PRUNED or SKIP_FULL:
+    FILES.append(("Comfy-Org/MiniMax-H3",
+                  "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+                  "diffusion_models"))
+    print("[低配档] 加入精简版 fl2va_pruned_int8 (21GB)")
 if INC_REF2VA:
     FILES.append(("Comfy-Org/MiniMax-H3", "diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors", "diffusion_models"))
 if INC_HERETIC:
