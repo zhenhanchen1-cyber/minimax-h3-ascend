@@ -19,6 +19,9 @@
 > 一条命令装完 · 40MB/s 分片下载 · 17 条踩坑记录 · 3 档工作流 · 32GB 单卡低配档。
 >
 > **姊妹项目**：NVIDIA 显卡路线（8GB 显存起）→ [minimax-h3-nvidia-uncensored](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored)
+>
+> **🟢 活跃维护中** · 最近更新：2026-10-12（新增社区增强件 + 昇腾兼容性判断）·
+> 完整历史见 [CHANGELOG.md](CHANGELOG.md) —— 内容可以被复制，**持续的实测与更新不能**。
 
 ---
 
@@ -328,7 +331,11 @@ text-to-video, image-to-video, reference-locked characters, native synchronized 
 
 ## 致谢与许可
 
-脚本与文档采用 **MIT 许可**。第三方组件归属见 [NOTICE.md](NOTICE.md)：
+脚本与文档采用 **MIT 许可**。你可以自由使用、修改、二次分发 ——
+**只要求一件事：保留原作者署名与本仓库链接**（这也是 MIT 的条款）。
+如果你做了改进，欢迎开 PR 回流，比另起一个副本更有价值。
+
+第三方组件归属见 [NOTICE.md](NOTICE.md)：
 [Ascend-SACT 昇腾适配补丁](https://atomgit.com/Ascend-SACT/MiniMax-H3-Comfy-NPU)（Apache-2.0）、
 [ComfyUI-MiniMax-H3-Turbo](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo)（Apache-2.0）、
 [ComfyUI](https://github.com/Comfy-Org/ComfyUI)（GPL-3.0）、
