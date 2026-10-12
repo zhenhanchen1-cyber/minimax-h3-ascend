@@ -39,8 +39,14 @@ bash scripts/download_models.sh    # ② 下模型（约90GB，hf-mirror 分片�
 bash scripts/start_comfyui.sh      # ③ 启动，浏览器打开 http://127.0.0.1:8188
 ```
 
-**下载速度参考**（实测）：聚合约 **40MB/s**（16 连接/文件），全量 90GB 约 **35~40 分钟**；
+**下载速度参考**（实测）：聚合约 **40MB/s**（32 连接/文件），全量 90GB 约 **35~40 分钟**；
 若环境带宽较差（10MB/s），约 2.5 小时，支持**断点续传**，断了重跑即可。
+
+还想更快？把并发拉满（带宽够的前提下可到 60~80MB/s）：
+
+```bash
+MAX_CONN=48 FILES_PARALLEL=3 bash scripts/download_models.sh
+```
 
 **前提**：昇腾环境已装 CANN ≥ 9.0.0 与 torch/torch_npu（如 CANNLab 镜像自带）。
 脚本会**自动识别 910B/910C 的卡数**（1/2/4/8）并同步到工作流配置。
@@ -163,6 +169,7 @@ bash scripts/start_comfyui.sh               # 启动（脚本会自动设 npu_co
 5. 昇腾只选 `int8_convrot` 系列权重；**NVFP4 / GGUF / FP8 是 N 卡专属**
 6. 单次最长 **15 秒**（362 帧）；更长用 `driver_grid.py` 分段接力
 7. `npu_count` 必须等于实际卡数（`set_npu_count.py` 自动处理）
+8. **出片立刻拉回本地** —— 租用机器随时可能回收，视频只存在服务器 `ComfyUI/output/video/`，丢了就没了
 
 ## ❓ 常见问题
 

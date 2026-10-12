@@ -13,7 +13,12 @@ M = os.environ.get("COMFY_HOME", "/mnt/workspace/ComfyUI") + "/models"
 BASE = "https://hf-mirror.com"
 INC_HERETIC = os.environ.get("INCLUDE_HERETIC_TE", "1") != "0"
 INC_REF2VA = os.environ.get("INCLUDE_REF2VA", "1") != "0"
-NCHUNK, CHUNK = 16, 64 * 1024 * 1024
+# 并发可调：默认每文件 32 连接（比 16 更快），可用环境变量覆盖
+#   MAX_CONN=48 bash scripts/download_models.sh    → 每文件 48 连接
+#   FILES_PARALLEL=3 ...                            → 同时下 3 个文件
+NCHUNK = int(os.environ.get("MAX_CONN", "32"))
+CHUNK = 64 * 1024 * 1024
+FILES_PARALLEL = int(os.environ.get("FILES_PARALLEL", "2"))
 
 # (repo, 仓库内路径, 本地目录)
 FILES = [
@@ -106,7 +111,7 @@ def reporter():
 
 done = [False]
 threading.Thread(target=reporter, daemon=True).start()
-for f in FILES:
-    dl(*f)
+with ThreadPoolExecutor(max_workers=FILES_PARALLEL) as ex:
+    list(ex.map(lambda f: dl(*f), FILES))
 done[0] = True
 print("\n全部模型下载完成。若工作流里选不到新模型，重启 ComfyUI 即可。")
