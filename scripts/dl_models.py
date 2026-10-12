@@ -30,6 +30,26 @@ FILES = [
     ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors", "loras"),
     ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors", "loras"),
 ]
+# N 卡模式：下载 fp8 / nvfp4 / w6a8 系列（昇腾用不上的格式在这切换）
+NVIDIA_MODE = os.environ.get("MODE", "ascend") == "nvidia"
+
+if NVIDIA_MODE:
+    FILES = [
+        ("Comfy-Org/MiniMax-H3", "diffusion_models/minimax_h3_fl2va_pruned_fp8_scaled.safetensors", "diffusion_models"),
+        ("Comfy-Org/MiniMax-H3", "vae/minimax_h3_video_vae_fp16.safetensors", "vae"),
+        ("Comfy-Org/MiniMax-H3", "vae/minimax_h3_audio_vae_fp32.safetensors", "vae"),
+        ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors", "loras"),
+        ("Comfy-Org/MiniMax-H3", "loras/minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors", "loras"),
+    ]
+    if os.environ.get("NVFP4_TE", "0") != "0":
+        # 仅 Blackwell（RTX 50 系）
+        FILES.append(("Comfy-Org/MiniMax-H3", "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors", "text_encoders"))
+    else:
+        FILES.append(("Comfy-Org/MiniMax-H3", "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors", "text_encoders"))
+    if os.environ.get("W6A8", "0") != "0":
+        FILES.append(("Comfy-Org/MiniMax-H3", "diffusion_models/minimax_h3_fl2va_pruned_w6a8.safetensors", "diffusion_models"))
+    print("[N 卡模式] 权重格式：fp8_scaled / w6a8 / nvfp4(可选)")
+
 SKIP_FULL = os.environ.get("SKIP_FULL_FL2VA", "0") != "0"
 INC_PRUNED = os.environ.get("INCLUDE_PRUNED", "0") != "0"
 

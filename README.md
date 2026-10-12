@@ -51,6 +51,21 @@ MAX_CONN=48 FILES_PARALLEL=3 bash scripts/download_models.sh
 **前提**：昇腾环境已装 CANN ≥ 9.0.0 与 torch/torch_npu（如 CANNLab 镜像自带）。
 脚本会**自动识别 910B/910C 的卡数**（1/2/4/8）并同步到工作流配置。
 
+> **用 N 卡（RTX 4090 / 5090）？** 看 [docs/NVIDIA显卡部署指南.md](docs/NVIDIA显卡部署指南.md)，
+> 脚本换成 `bash scripts/setup_nvidia.sh` + `bash scripts/download_models_nvidia.sh`。
+
+## 💰 硬件怎么选（性价比）
+
+| 方案 | 成本 | 显存 | 体验 | 适合 |
+|---|---|---|---|---|
+| **昇腾 910B（CANNLab 等活动）** | **免费** | 2×64GB | 768P 无压力，480P 热机 20~25 秒/条 | **首选** |
+| 昇腾 910B 32GB（低配档） | 免费 | 32GB | 480P/5s，约 2~5 分钟/条 | 约不到大显存时 |
+| RTX 4090 云租用 | 2~4 元/小时 | 24GB | 480P 起步，需 fp8/GGUF 量化 | 没昇腾资源时 |
+| RTX 5090 云租用 | 5~8 元/小时 | 32GB | 可摸 768P，NVFP4 加持 | 追求速度 |
+| 昇腾 910C | 高 | 128GB/卡 | 最强，单卡跑完整模型 | 预算充足 |
+
+一句话：**有免费昇腾就别租卡**；非要租，按显存下菜——24GB 只能 480P，32GB 能摸 768P。
+
 ## 📦 模型清单（含审查状态 / 硬件要求 / 测试状态）
 
 > 全部公开可用；✅=本仓库实测通过，❓=未测试（理论可用，欢迎反馈），❌=昇腾不可用。
@@ -156,7 +171,11 @@ bash scripts/start_comfyui.sh               # 启动（脚本会自动设 npu_co
 │   ├── 出片操作手册.md
 │   ├── 九宫格图生视频教程.md
 │   ├── 部署踩坑记录.md          # 17 个坑与修复
+│   ├── NVIDIA显卡部署指南.md     # 4090/5090 路线（参考，未实测）
 │   └── ENVIRONMENT-910B.txt
+├── scripts/
+│   ├── setup_nvidia.sh          # N 卡一键部署
+│   └── download_models_nvidia.sh # N 卡权重下载（fp8/nvfp4/w6a8）
 └── windows/                    # Windows 隧道脚本（自愈重连）
 ```
 
