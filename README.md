@@ -1,14 +1,48 @@
-# MiniMax-H3 (Uncensored 去审核版) · 昇腾 910B/910C 本地部署全栈方案
+<div align="center">
 
-> 在华为昇腾 NPU（910B / 910C）上用 ComfyUI 本地运行 **MiniMax-H3** 全模态视频生成：
-> 文生视频 / 图生视频 / 参考图锁角色，**原生音画同步**，文本编码器可选**无审查（Uncensored）版本**，
-> 完全本地运行、无云端内容限制，免费无限量。
+# 🎬 MiniMax-H3 · 昇腾 NPU 本地部署（910B / 910C 真机实测）
+
+**在华为昇腾 NPU 上用 ComfyUI 本地跑 MiniMax-H3 全模态视频生成**
+文生视频 · 图生视频 · 参考图锁角色 · **原生音画同步** · 全程离线 · 免费无限量
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform: Ascend NPU](https://img.shields.io/badge/Platform-Ascend_NPU-c8102e)]()
+[![Tested: 910B 2×64G](https://img.shields.io/badge/Tested-910B_2%C3%9764G-green)]()
+[![Workflows: 10](https://img.shields.io/badge/Workflows-10-orange)]()
+[![Download: 40MB/s](https://img.shields.io/badge/Download-40MB%2Fs-blue)]()
+
+**中文** ｜ [English](#english)
+
+</div>
+
+> **🔥 一句话卖点**：官方和社区资料几乎**全是 N 卡路线**，这里是**唯一在昇腾 910B 双卡上真机跑通并给出完整实测数据**的部署方案 ——
+> 一条命令装完 · 40MB/s 分片下载 · 17 条踩坑记录 · 3 档工作流 · 32GB 单卡低配档。
+>
+> **姊妹项目**：NVIDIA 显卡路线（8GB 显存起）→ [minimax-h3-nvidia-uncensored](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored)
+
+---
+
+## 📑 目录
+
+- [实测出片（60 秒连续剧情）](#-实测出片60-秒连续剧情本仓库流水线生成)
+- [实测性能数据](#实测性能2x910b64gb2-hbm)
+- [快速开始（换机复原只需三步）](#快速开始换机复原只需三步)
+- [硬件怎么选（性价比）](#-硬件怎么选性价比)
+- [模型清单（含硬件要求 / 测试状态）](#-模型清单含硬件要求--测试状态)
+- [不同规格昇腾机器怎么配](#️-不同规格昇腾机器怎么配)
+- [32GB 单卡低配档](#-32gb-单卡低配档完整可行方案)
+- [三档工作流](#-三档工作流新手按场景直接选)
+- [关键注意事项](#-关键注意事项)
+- [常见问题](#-常见问题)
+- [⭐ 如果对你有帮助](#-如果对你有帮助)
 
 ## 🔥 三大看点
 
-1. **无审查运行** —— 文本编码器提供社区 **uncensored（heretic）** 版本，视频生成全程本地，没有云端审核掐提示词的问题
-2. **昇腾真机部署** —— 官方和社区资料几乎全是 NVIDIA 路线（CUDA/NVFP4/GGUF），本仓库提供**已在 910B 双卡实测跑通**的 INT8 完整方案，单机 128GB HBM
-3. **开箱即用 + 一键复原** —— 换一台昇腾机器，clone → 三条命令 → 浏览器开干；附实测性能数据与 17 条踩坑修复
+1. **昇腾真机实测（全社区稀缺）** —— 官方与社区资料几乎全是 NVIDIA 路线（CUDA/NVFP4/GGUF），
+   本仓库提供**已在 910B 双卡跑通**的 INT8 完整方案 + 实测性能表 + 17 条踩坑修复，另有 1×64G / 1×32G / 4×64G 适配档
+2. **开箱即用 + 一键复原** —— 换一台昇腾机器，clone（<5MB）→ 三条命令 → 浏览器开干；
+   自研分片下载器实测聚合 **40MB/s**，90GB 约 35~40 分钟（官方单连接只有 ~2MB/s）
+3. **完全本地运行** —— 视频生成与文本编码全程在本机，**没有云端审核掐提示词这一层**，免费无限量
 
 ## 🎬 实测出片（60 秒连续剧情，本仓库流水线生成）
 
@@ -51,8 +85,10 @@ MAX_CONN=48 FILES_PARALLEL=3 bash scripts/download_models.sh
 **前提**：昇腾环境已装 CANN ≥ 9.0.0 与 torch/torch_npu（如 CANNLab 镜像自带）。
 脚本会**自动识别 910B/910C 的卡数**（1/2/4/8）并同步到工作流配置。
 
-> **用 N 卡（RTX 4090 / 5090）？** 看 [docs/NVIDIA显卡部署指南.md](docs/NVIDIA显卡部署指南.md)，
-> 脚本换成 `bash scripts/setup_nvidia.sh` + `bash scripts/download_models_nvidia.sh`。
+> **用 N 卡（RTX 4090 / 5090）？** 请看**专门的 N 卡仓库**
+> [minimax-h3-nvidia-uncensored](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored)
+> （8GB 显存起 · 一键脚本 · 9 套工作流 · 15+ 模型选型）。
+> 本仓库也留了一份早期参考：[docs/NVIDIA显卡部署指南.md](docs/NVIDIA显卡部署指南.md)。
 
 ## 💰 硬件怎么选（性价比）
 
@@ -83,14 +119,27 @@ MAX_CONN=48 FILES_PARALLEL=3 bash scripts/download_models.sh
 | `minimax_h3_fl2va_pruned_bf16` | 40.2G | 中立 | ≥2×64G | ❓ | 半精度轻量版，**未测试** |
 | `minimax_h3_fl2va_pruned_fp8_scaled` | 21.0G | 中立 | ❌ | ❌ | FP8 为 N 卡优化，昇腾不建议 |
 
-### 文本编码器（决定"审查"）
+### 文本编码器（体积与量化档才是选型依据）
 
-| 文件 | 大小 | 审查 | 昇腾要求 | 状态 | 说明 |
+| 文件 | 大小 | 来源 | 昇腾要求 | 状态 | 说明 |
 |---|---|---|---|---|---|
-| `qwen3vl_32b_h3_ultra_uncensored_heretic_int8_convrot` | 26.4G | **无审查** 🔥 | 单卡 64G | ✅ | **本仓库默认**，社区 uncensored 版 |
-| `qwen3vl_32b_minimax_h3_int8_convrot` | 27.1G | 官方有审查 | 单卡 64G | ✅ | 官方版，追求稳妥可换 |
-| `qwen3vl_32b_minimax_h3_nvfp4_awq` | 15.7G | 官方有审查 | ❌ | ❌ | NVFP4：N 卡 Blackwell 专属 |
-| `qwen3vl_32b_minimax_h3_bf16` | 51.5G | 官方有审查 | ≥2×64G | ❓ | 全精度版，**未测试** |
+| `qwen3vl_32b_h3_ultra_uncensored_heretic_int8_convrot` | 26.4G | 社区 | 单卡 64G | ✅ | **本仓库默认**，社区 heretic 版 |
+| `qwen3vl_32b_minimax_h3_int8_convrot` | 27.1G | 官方 | 单卡 64G | ✅ | 官方版，追求稳妥可换 |
+| `qwen3vl_32b_minimax_h3_nvfp4_awq` | 15.7G | 官方 | ❌ | ❌ | NVFP4：N 卡 Blackwell 专属 |
+| `qwen3vl_32b_minimax_h3_bf16` | 51.5G | 官方 | ≥2×64G | ❓ | 全精度版，**未测试** |
+
+> **⚠️ 关于「无审查文本编码器」的说明（社区最新结论）**
+>
+> 社区流传"换成 heretic/uncensored 文本编码器就能解锁内容"——**Heretic 作者本人已公开否认这一点**
+> （PSA 帖在 r/StableDiffusion 拿到约 2450 赞）。原因很硬：文本编码器**不生成任何文字**，
+> 它只把提示词编码成条件张量 `[token数, 5120]` 交给 DiT，**不存在"拒答"这个环节**；
+> 社区 ClipProj 实测 abliterated 编码器与官方编码器的条件张量余弦差仅 **0.0023（≈0.23%）**，基本是噪声。
+> 最坏情况还会因条件偏离训练分布而降低提示词遵循度。
+>
+> 越狱真正有意义的场景只有一个：把**生成尾层**（语言层 50-63 + LM 头）接成 LLM 做**提示词改写 / 增强**。
+>
+> 所以本仓库默认带 heretic 编码器只是"已装好、可直接对比"，**真正的自由度来自"全程本地 + 你自己的提示词"**，
+> 而不是那个文件名——本方案在昇腾上跑通 60 秒长片，靠的是本地推理这一层，与编码器选哪个无关。
 
 ### VAE / 加速 LoRA
 
@@ -202,14 +251,56 @@ bash scripts/start_comfyui.sh               # 启动（脚本会自动设 npu_co
 工作流 JSON 是通用的；模型请选对应平台的量化版本（N 卡用 nvfp4 / fp8 系列，即上文标 ❌ 的那些行，**未测试**）。
 
 **Q：生成有内容限制吗？**
-视频生成完全在本地运行，本仓库默认文本编码器为社区 uncensored 版本，不存在云端审核拦截；请自行遵守所处地区的法律法规。
+视频生成与文本编码**完全在本地运行**，不存在云端那一层审核拦截——**这才是"自由度"的真正来源**，
+而不是文本编码器换成哪个版本（原因见上文[「关于无审查文本编码器的说明」](#文本编码器体积与量化档才是选型依据)）。
+请自行遵守所处地区的法律法规。
 
-## 📦 多平台镜像
+## 🔗 相关项目 & 多平台镜像
 
-| 平台 | 地址 |
-|---|---|
-| GitCode | https://gitcode.com/nxxwjbl/minimax-h3-ascend-uncensored |
-| GitHub | https://github.com/zhenhanchen1-cyber/minimax-h3-ascend-uncensored |
+| 项目 | 平台 | 说明 |
+|---|---|---|
+| **本项目**（昇腾） | [GitCode](https://gitcode.com/nxxwjbl/minimax-h3-ascend-uncensored) ｜ [GitHub](https://github.com/zhenhanchen1-cyber/minimax-h3-ascend) | 华为昇腾 910B/910C，真机实测 |
+| **姊妹项目**（N 卡） | [GitCode](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored) ｜ [GitHub](https://github.com/zhenhanchen1-cyber/minimax-h3-nvidia-uncensored) | NVIDIA 显卡，8GB 显存起，含 9 套工作流与全模型选型表 |
+
+> 两个仓库是同一套模型的**两条硬件路线**，工作流 JSON 完全通用，可以互相参照。
+> N 卡路线的加速件（SLA 稀疏注意力 / NVFP4 / GGUF 分层卸载）在昇腾上不可用，
+> 所以**同一条视频，N 卡所需算力约是昇腾的 1/5 ~ 1/8**——这不是昇腾不行，是生态成熟度差异。
+
+---
+
+## ⭐ 如果对你有帮助
+
+**点个 Star** 是最实在的支持 —— 昇腾路线的文档本来就少，让更多在昇腾机器上折腾的人搜到它。
+有实测数据、踩到新坑、或跑通了更多机型，欢迎开 [Issue](https://github.com/zhenhanchen1-cyber/minimax-h3-ascend/issues) / PR。
+
+---
+
+## English
+
+**MiniMax-H3 local deployment on Huawei Ascend NPU (910B / 910C) — tested on real hardware.**
+
+Run MiniMax-H3 (the omni-modal video model behind Hailuo 3.0) locally with ComfyUI on Ascend NPU:
+text-to-video, image-to-video, reference-locked characters, native synchronized stereo audio, fully offline.
+
+- **The scarce one**: virtually every public guide for MiniMax-H3 targets NVIDIA/CUDA. This repo is a complete,
+  **actually-tested** INT8 deployment for Ascend 910B dual-card (2×64GB HBM), including measured performance
+  and 17 documented pitfalls with fixes.
+- **One-command setup**: `bash setup.sh` → `bash scripts/download_models.sh` → `bash scripts/start_comfyui.sh`.
+  The custom sharded downloader reaches **40 MB/s** aggregate (upstream single-connection: ~2 MB/s), so ~90 GB
+  of weights take ~35–40 min, with resume support.
+- **Fits more than dual-card**: profiles for 1×64GB, **1×32GB (a dedicated low-VRAM workflow)**, 2×64GB and 4×64GB
+  (910C); the setup script auto-detects the NPU count and syncs it into every workflow.
+- **Measured**: 0.4MP / 124 frames / 4 steps → **17.8 s sampling, ~20–25 s end-to-end** per clip (warm);
+  a 61-second continuous short film was produced with a keyframe-chaining pipeline included in `scripts/`.
+- **Sister project**: NVIDIA GPU route (from 8GB VRAM) →
+  [minimax-h3-nvidia-uncensored](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored).
+
+> Note: Ascend only supports `int8_convrot` weights. NVFP4 / GGUF / FP8 / SLA sparse attention are CUDA-only.
+> Audio VAE must be **fp32**. Max clip length is 15 s (362 frames).
+
+**License**: MIT for scripts and docs — see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
+
+---
 
 ## 致谢与许可
 
