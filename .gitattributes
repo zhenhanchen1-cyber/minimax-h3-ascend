@@ -6,3 +6,4 @@
 *.md text eol=lf
 *.txt text eol=lf
 *.bat text eol=crlf
+*.yml text eol=lf
