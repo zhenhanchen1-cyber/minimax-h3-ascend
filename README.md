@@ -32,6 +32,7 @@
 - [不同规格昇腾机器怎么配](#️-不同规格昇腾机器怎么配)
 - [32GB 单卡低配档](#-32gb-单卡低配档完整可行方案)
 - [三档工作流](#-三档工作流新手按场景直接选)
+- [社区增强件（昇腾兼容性待验证）](#-社区增强件昇腾兼容性待验证欢迎实测)
 - [关键注意事项](#-关键注意事项)
 - [常见问题](#-常见问题)
 - [⭐ 如果对你有帮助](#-如果对你有帮助)
@@ -201,6 +202,29 @@ bash scripts/start_comfyui.sh               # 启动（脚本会自动设 npu_co
 | `i2v_九宫格_昇腾适配.json` | 九宫格分镜图 → 连续剧情 | 下拉框已配好，即开即用 |
 | `ref2va_8steps_lora.json` | 参考图锁角色 | 需切 ref2va 主模型 |
 | `fl2va_4step_480P低显存.json` | 精简模型/864×480/5s/4步/单卡 | **32GB 卡专用** |
+
+## 🔌 社区增强件（昇腾兼容性：待验证，欢迎实测）
+
+H3 社区最火的两个单点工具都是**免训练、零依赖**的，理论上昇腾也能用 ——
+但目前**全网没人测过昇腾**，这是本仓库的开放式 TODO：
+
+| 增强件 | 做什么 | 收益 | 昇腾可行性判断 |
+|---|---|---|---|
+| [ComfyUI-Spectrum-MiniMax-H3](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3)（682★） | 用岭回归拟合隐层特征，在"预测步"整个跳过 transformer | 省 30~35% 时间 | 🟡 依赖 `MiniMaxH3Model` 原生路径，操作是常规张量运算，**NPU 大概率可跑**，但作者只验证 CUDA/ROCm |
+| [Comfyui_Minimax_h3_latent_Upscaler](https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler)（707★） | 在 24 通道 latent 上直接放大，跳过 VAE 往返 | 低分辨率出片 + 放大，**比直出高分辨率快得多** | 🟢 主体是 3D 卷积 + 三线性插值，作者已支持 ROCm 后端，**torch_npu 大概率可跑** |
+
+```bash
+# 手装（装完重启 ComfyUI）
+cd $COMFY_HOME/custom_nodes
+git clone https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3.git
+git clone https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler.git
+# 放大模型（约 691MB）放到 models/latent_upscale_models/
+```
+
+> **这点很值钱**：昇腾路线的"低分辨率出片 + 潜空间放大"如果跑通，
+> 等于把昇腾上 1.0MP 长片 11 分钟的耗时，换成"0.4MP 极速档 + 放大"，
+> 可能把高分辨率成片从**分钟级压到秒级**。**谁先测出来，谁就是全网第一份数据** ——
+> 测完欢迎开 Issue 提交（有专门的实测模板）。
 
 ## 📁 目录结构
 
