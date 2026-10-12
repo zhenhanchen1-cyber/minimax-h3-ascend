@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 部署踩坑记录（17 个坑与修复）
+    url: https://github.com/zhenhanchen1-cyber/minimax-h3-ascend/blob/master/docs/%E9%83%A8%E7%BD%B2%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95.md
+    about: aarch64 libgomp、torchaudio 版本、npu_count、隧道断连等高频问题
+  - name: 📘 出片操作手册
+    url: https://github.com/zhenhanchen1-cyber/minimax-h3-ascend/blob/master/docs/%E5%87%BA%E7%89%87%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C.md
+    about: 建隧道 / 加载工作流 / 模型节点核对 / 提示词写法 / 分辨率对照表

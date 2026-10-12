@@ -1,0 +1,59 @@
+name: 📊 提交实测数据（推荐）
+description: 把你跑通的昇腾机型 + 耗时 + 显存占用发出来（本仓库最缺的就是这个）
+title: "[实测] ____ 机型 / ____ 秒 / ____ GiB"
+labels: ["benchmark"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        昇腾路线的公开实测数据极少 —— 你填的每一行都会帮到后面在昇腾上折腾的人。
+        数据会被整理进 README 的实测表（会署名你的 GitHub ID）。
+  - type: input
+    id: machine
+    attributes:
+      label: 机器 / 卡型与卡数
+      placeholder: 910B 2×64GB HBM / 910C 1×128GB / 910B3 1×64GB
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: CANN / torch_npu 版本
+      placeholder: CANN 9.0.0 / torch 2.7.1 + torch_npu 2.7.1.post4
+    validations:
+      required: false
+  - type: input
+    id: models
+    attributes:
+      label: 主模型 + 文本编码器
+      placeholder: fl2va_pruned_int8 21G + heretic_int8 26.4G
+    validations:
+      required: true
+  - type: input
+    id: params
+    attributes:
+      label: 分辨率 / 帧数 / 步数 / npu_count
+      placeholder: 864x480 / 124 帧 / 4 步 / npu_count=2
+    validations:
+      required: true
+  - type: input
+    id: time
+    attributes:
+      label: 耗时（采样时间 + 端到端）
+      placeholder: 采样 17.8s，端到端 71s（冷启）/ 20~25s（热机）
+    validations:
+      required: true
+  - type: input
+    id: vram
+    attributes:
+      label: 显存占用
+      placeholder: 峰值约 27~30GB（单卡 32GB 档）
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充说明（可选）
+      description: 是否用了 --lowvram / LOWVRAM=1、踩到的新坑、画质评价
+    validations:
+      required: false
