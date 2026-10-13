@@ -100,7 +100,8 @@ MAX_CONN=48 FILES_PARALLEL=3 bash scripts/download_models.sh
 |---|---|---|---|---|
 | **昇腾 910B（CANNLab 等活动）** | **免费** | 2×64GB | 768P 无压力，480P 热机 20~25 秒/条 | **首选** |
 | 昇腾 910B 32GB（低配档） | 免费 | 32GB | 480P/5s，约 2~5 分钟/条 | 约不到大显存时 |
-| RTX 4090 云租用 | 2~4 元/小时 | 24GB | 480P 起步，需 fp8/GGUF 量化 | 没昇腾资源时 |
+| RTX 4090 云租用 | 2~4 元/小时 | 24GB | 480P 起步，需 fp8 / INT8 量化（GGUF 只可用于主模型） | 没昇腾资源时 |
+| RTX 4090-48G（显存魔改，实测） | 约 2.2 元/小时 | 48GB | 0.4MP/5s **54 秒**、0.98MP/6 步 **243 秒**（无 SLA，保守值） | 想拿 N 卡数据对照 |
 | RTX 5090 云租用 | 5~8 元/小时 | 32GB | 可摸 768P，NVFP4 加持 | 追求速度 |
 | 昇腾 910C | 高 | 128GB/卡 | 最强，单卡跑完整模型 | 预算充足 |
 
@@ -261,7 +262,10 @@ git clone https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler.git
 2. **torchaudio 必须与 torch 同版本**（setup.sh 已自动处理）
 3. **aarch64 需 `LD_PRELOAD=libgomp.so.1`**（启动脚本已内置）
 4. **ComfyUI 必须锁 commit** `bd34f338`（补丁基于该版本）
-5. 昇腾只选 `int8_convrot` 系列权重；**NVFP4 / GGUF / FP8 是 N 卡专属**
+5. 昇腾只选 `int8_convrot` 系列权重；**NVFP4 / FP8 / SLA 稀疏注意力是 N 卡专属**。
+   顺带纠正一个**跨平台**结论（2026-10-13 N 卡真机验证）：**H3 的 GGUF 文本编码器在所有平台都不可用**
+   —— 所有 H3 的 GGUF 编码器仓库都缺 mmproj 视觉塔，构建不出 tokenizer（`ClipLoaderGGUF` 必崩）。
+   **GGUF 只适合 N 卡的"主模型"**；文本编码器一律 safetensors + 官方 `CLIPLoader`。
 6. 单次最长 **15 秒**（362 帧）；更长用 `driver_grid.py` 分段接力
 7. `npu_count` 必须等于实际卡数（`set_npu_count.py` 自动处理）
 8. **出片立刻拉回本地** —— 租用机器随时可能回收，视频只存在服务器 `ComfyUI/output/video/`，丢了就没了
@@ -287,10 +291,11 @@ git clone https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler.git
 | 项目 | 平台 | 说明 |
 |---|---|---|
 | **本项目**（昇腾） | [GitCode](https://gitcode.com/nxxwjbl/minimax-h3-ascend-uncensored) ｜ [GitHub](https://github.com/zhenhanchen1-cyber/minimax-h3-ascend) | 华为昇腾 910B/910C，真机实测 |
-| **姊妹项目**（N 卡） | [GitCode](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored) ｜ [GitHub](https://github.com/zhenhanchen1-cyber/minimax-h3-nvidia-uncensored) | NVIDIA 显卡，8GB 显存起，含 9 套工作流与全模型选型表 |
+| **姊妹项目**（N 卡） | [GitCode](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored) ｜ [GitHub](https://github.com/zhenhanchen1-cyber/minimax-h3-nvidia-uncensored) | NVIDIA 显卡，8GB 显存起，含 13 套工作流与全模型选型表；另附 [真机踩坑与前置要求](https://github.com/zhenhanchen1-cyber/minimax-h3-nvidia-uncensored/blob/main/docs/%E7%9C%9F%E6%9C%BA%E8%B8%A9%E5%9D%91%E4%B8%8E%E5%89%8D%E7%BD%AE%E8%A6%81%E6%B1%82.md) |
 
 > 两个仓库是同一套模型的**两条硬件路线**，工作流 JSON 完全通用，可以互相参照。
-> N 卡路线的加速件（SLA 稀疏注意力 / NVFP4 / GGUF 分层卸载）在昇腾上不可用，
+> N 卡路线的加速件（SLA 稀疏注意力 / NVFP4）在昇腾上不可用，
+> 且 **H3 的 GGUF 文本编码器在两条路线上都不可用**（缺 mmproj 视觉塔，只适合当主模型），
 > 所以**同一条视频，N 卡所需算力约是昇腾的 1/5 ~ 1/8**——这不是昇腾不行，是生态成熟度差异。
 
 ---
@@ -322,7 +327,9 @@ text-to-video, image-to-video, reference-locked characters, native synchronized 
 - **Sister project**: NVIDIA GPU route (from 8GB VRAM) →
   [minimax-h3-nvidia-uncensored](https://gitcode.com/nxxwjbl/minimax-h3-nvidia-uncensored).
 
-> Note: Ascend only supports `int8_convrot` weights. NVFP4 / GGUF / FP8 / SLA sparse attention are CUDA-only.
+> Note: Ascend only supports `int8_convrot` weights. NVFP4 / FP8 / SLA sparse attention are CUDA-only.
+> **GGUF text encoders do not work with H3 on any platform** (they ship no mmproj vision tower, so
+> `ClipLoaderGGUF` crashes) — GGUF is only usable for the NVIDIA diffusion-model route.
 > Audio VAE must be **fp32**. Max clip length is 15 s (362 frames).
 
 **License**: MIT for scripts and docs — see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
